@@ -270,13 +270,13 @@ out1
 n.sims = 20
 
 # three sample sizes
-sample.sizes.for.sim = c(200,5000,10000)
+sample.sizes.for.sim = c(200,1000,5000)
 
 # use cross-validation?
 nsplits <- 1 #nope
 
 # how to estimate the nuisance functions (parametric vs. nonparametric)?
-sl.lib <- c("SL.ranger") # nonparametric
+sl.lib <- c("SL.glm") # nonparametric
 # sl.lib <- c("SL.glm") # parametric
 
 # data for evaluation - will be the same for all estimators
@@ -497,9 +497,10 @@ close(pb)
 
 head(sim.df)
 
-save(sim.df, file="sim.df-2018-08-25.rda")
+# NOTE THAT THE FOR LOOP HAS TO BE RUN SEPARATELY FOR PARAMETRIC AND NONPARAMETRIC ESTIMATIONS
 
-
+# save(sim.df, file="sim.df.np-2018-08-25.rda")
+# save(sim.df, file="sim.df.p-2018-08-25.rda")
 
 
 # take mean across all j simulations - RMSE and bias
@@ -508,6 +509,9 @@ colnames(sim.df.m) = names(sim.df.m)
 sim.df.m = round(sim.df.m, 2)
 sim.df.m
 
+# sim.df.m.np <- format(round(sim.df.m, digits=2), nsmall = 2) 
+# sim.df.m.p <- format(round(sim.df.m, digits=2), nsmall = 2) 
+
 
 # take mean across all j simulations - coverage
 sim.df.cov.m <- as.data.frame(t(colMeans(sim.df.cov, dims = 1, na.rm=TRUE)))
@@ -515,7 +519,8 @@ colnames(sim.df.cov.m) = names(sim.df.cov.m)
 sim.df.cov.m = round(sim.df.cov.m, 2)
 sim.df.cov.m
 
-
+# sim.df.cov.m.np <- format(round(sim.df.cov.m, digits=2), nsmall = 2) 
+# sim.df.cov.m.p <- format(round(sim.df.cov.m, digits=2), nsmall = 2) 
 
 
 
@@ -523,22 +528,6 @@ sim.df.cov.m
 # -----------------------
 # 4) Preparing for publication ----
 # -----------------------
-
-
-# NOTE THAT THE FOR LOOP HAS TO BE RUN SEPARATELY FOR PARAMETRIC AND NONPARAMETRIC ESTIMATIONS
-
-# with glm (parametric, p)
-# sim.df.m.p <- format(round(sim.df.m, digits=2), nsmall = 2) 
-sim.df.cov.m.p <- format(round(sim.df.cov.m, digits=2), nsmall = 2) 
-
-# with ranger (nonparametric, np)
-# sim.df.np <- format(round(sim.df.m, digits=2), nsmall = 2) 
-sim.df.cov.m.np <- format(round(sim.df.cov.m, digits=2), nsmall = 2) 
-
-
-
-
-
 
 # make table for publication - RMSE and bias
 publish.df.biasRMSE <- as.data.frame(matrix(NA,nrow=6,ncol=6))
@@ -559,19 +548,19 @@ publish.df.biasRMSE$`Mis P` <- c( paste( sim.df.m.p$plugin.misspecified.bias.500
                           paste( sim.df.m.p$plugin.misspecified.bias.10000, " (", sim.df.m.p$plugin.misspecified.RMSE.10000,")", sep=""),
                           paste( sim.df.m.p$ifb.misspecified.bias.10000, " (", sim.df.m.p$ifb.misspecified.RMSE.10000,")", sep="")
                         )
-publish.df.biasRMSE$`Cor NP` <- c( paste( sim.df.np$plugin.correct.bias.500, " (", sim.df.np$plugin.correct.RMSE.500,")", sep=""), 
-                          paste( sim.df.np$ifb.correct.bias.500, " (", sim.df.np$ifb.correct.RMSE.500,")", sep=""),
-                          paste( sim.df.np$plugin.correct.bias.5000, " (", sim.df.np$plugin.correct.RMSE.5000,")", sep=""),
-                          paste( sim.df.np$ifb.correct.bias.5000, " (", sim.df.np$ifb.correct.RMSE.5000,")", sep=""),
-                          paste( sim.df.np$plugin.correct.bias.10000, " (", sim.df.np$plugin.correct.RMSE.10000,")", sep=""),
-                          paste( sim.df.np$ifb.correct.bias.10000, " (", sim.df.np$ifb.correct.RMSE.10000,")", sep="")
+publish.df.biasRMSE$`Cor NP` <- c( paste( sim.df.m.np$plugin.correct.bias.500, " (", sim.df.m.np$plugin.correct.RMSE.500,")", sep=""), 
+                          paste( sim.df.m.np$ifb.correct.bias.500, " (", sim.df.m.np$ifb.correct.RMSE.500,")", sep=""),
+                          paste( sim.df.m.np$plugin.correct.bias.5000, " (", sim.df.m.np$plugin.correct.RMSE.5000,")", sep=""),
+                          paste( sim.df.m.np$ifb.correct.bias.5000, " (", sim.df.m.np$ifb.correct.RMSE.5000,")", sep=""),
+                          paste( sim.df.m.np$plugin.correct.bias.10000, " (", sim.df.m.np$plugin.correct.RMSE.10000,")", sep=""),
+                          paste( sim.df.m.np$ifb.correct.bias.10000, " (", sim.df.m.np$ifb.correct.RMSE.10000,")", sep="")
 )
-publish.df.biasRMSE$`Mis NP` <- c( paste( sim.df.np$plugin.misspecified.bias.500, " (", sim.df.np$plugin.misspecified.RMSE.500,")", sep=""),
-                          paste( sim.df.np$ifb.misspecified.bias.500, " (", sim.df.np$ifb.misspecified.RMSE.500,")", sep=""),
-                          paste( sim.df.np$plugin.misspecified.bias.5000, " (", sim.df.np$plugin.misspecified.RMSE.5000,")", sep=""),
-                          paste( sim.df.np$ifb.misspecified.bias.5000, " (", sim.df.np$ifb.misspecified.RMSE.5000,")", sep=""),
-                          paste( sim.df.np$plugin.misspecified.bias.10000, " (", sim.df.np$plugin.misspecified.RMSE.10000,")", sep=""),
-                          paste( sim.df.np$ifb.misspecified.bias.10000, " (", sim.df.np$ifb.misspecified.RMSE.10000,")", sep="")
+publish.df.biasRMSE$`Mis NP` <- c( paste( sim.df.m.np$plugin.misspecified.bias.500, " (", sim.df.m.np$plugin.misspecified.RMSE.500,")", sep=""),
+                          paste( sim.df.m.np$ifb.misspecified.bias.500, " (", sim.df.m.np$ifb.misspecified.RMSE.500,")", sep=""),
+                          paste( sim.df.m.np$plugin.misspecified.bias.5000, " (", sim.df.m.np$plugin.misspecified.RMSE.5000,")", sep=""),
+                          paste( sim.df.m.np$ifb.misspecified.bias.5000, " (", sim.df.m.np$ifb.misspecified.RMSE.5000,")", sep=""),
+                          paste( sim.df.m.np$plugin.misspecified.bias.10000, " (", sim.df.m.np$plugin.misspecified.RMSE.10000,")", sep=""),
+                          paste( sim.df.m.np$ifb.misspecified.bias.10000, " (", sim.df.m.np$ifb.misspecified.RMSE.10000,")", sep="")
 )
 publish.df.biasRMSE
 
@@ -582,53 +571,32 @@ print(xtable(publish.df.biasRMSE, caption="RMSE and bias from simulation with 50
 
 
 
-# make plot for publication
+
+# make plots for publication
+dfsumRMSE <- as.data.frame ( c( rep("Parametric", 24), rep("Nonparametric", 24) )) ; names(dfsumRMSE) <- "PorNP"
+dfsumRMSE$Algorithm_type <- (c( rep("Plug-in", 12), rep("Proposed", 12) ))
+dfsumRMSE$X_Specification <- c( rep("Cor", 6), rep("Mis", 6))
+dfsumRMSE$Stat <- c( rep("Bias", 3), rep("RMSE", 3))
+dfsumRMSE$Sample_Sizes <- c( "100", "1000", "10000" )
+dfsumRMSE <- dfsumRMSE %>% mutate_if(is.character,as.factor)
+dfsumRMSE$PorNP <- factor(dfsumRMSE$PorNP, levels = c("Parametric", "Nonparametric"))
+dfsumRMSE$Sample_Sizes <- factor(dfsumRMSE$Sample_Sizes, levels = c("100", "1000", "10000"))
+dfsumRMSE$Value <- as.numeric(format(round(c ( as.numeric(t(sim.df.m.p)), as.numeric(t(sim.df.m.np)) ), digits=2), nsmall = 2) )
+
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+
 setwd("/Users/mariacuellar/Desktop/")
-pdf(file="errors.pdf", width=10, height=10)
-
-attach(sim.df.m)
-par(mfrow=c(2,1))
-plot(c(plugin.correct.RMSE.500, plugin.correct.RMSE.5000, plugin.correct.RMSE.10000), type="o",
-     ylim=c(0,max(sim.df.m)), xlim=c(1,3.5), col="green", main=paste("RMSE across ", j, " simulations, evaluated at data that had n=", nrow(dat.eval), sep=""),
-     ylab="RMSE", xlab="Sample sizes", xaxt="n")
-lines(c(plugin.misspecified.RMSE.500, plugin.misspecified.RMSE.5000, plugin.misspecified.RMSE.10000), type="o", ylim=c(1,5), ylab="", col="red")
-lines(c(ifb.correct.RMSE.500, ifb.correct.RMSE.5000, ifb.correct.RMSE.10000), type="o", pch=1, ylim=c(1,10), ylab="", col="blue")
-lines(c(ifb.misspecified.RMSE.500, ifb.misspecified.RMSE.5000, ifb.misspecified.RMSE.10000), type="o", ylim=c(1,5), ylab="", col="orange")
-legend("topright", legend=c("Plugin correct", "Plugin missp.", "IFB correct", "IFB missp."),
-       col = c("green", "red", "blue", "orange"), lty=1, cex=0.7)
-axis(1, at=c(1,2,3), labels=c("500", "5000", "10,000"))
-grid()
-
-
-plot(c(plugin.correct.bias.500, plugin.correct.bias.5000, plugin.correct.bias.10000), type="o",
-     ylim=c(0,max(sim.df.m)), xlim=c(1,3.5), col="green", main=paste("Bias across ", j, " simulations, evaluated at data that had n=", nrow(dat.eval), sep=""),
-     ylab="Bias", xlab="Sample sizes", xaxt="n")
-lines(c(plugin.misspecified.bias.500, plugin.misspecified.bias.5000, plugin.misspecified.bias.10000), type="o", ylim=c(1,5), ylab="", col="red")
-lines(c(ifb.correct.bias.500, ifb.correct.bias.5000, ifb.correct.bias.10000), type="o", pch=1, ylim=c(1,10), ylab="", col="blue")
-lines(c(ifb.misspecified.bias.500, ifb.misspecified.bias.5000, ifb.misspecified.bias.10000), type="o", ylim=c(1,5), ylab="", col="orange")
-legend("topright", legend=c("Plugin correct", "Plugin missp.", "IFB correct", "IFB missp."),
-       col = c("green", "red", "blue", "orange"), lty=1, cex=0.7)
-axis(1, at=c(1,2,3), labels=c("500", "5000", "10,000"))
-grid()
-
+pdf(file="errors-RMSE-2018-08-26.pdf", width=8, height=3.5)
+newdata_6 = dfsumRMSE[ which(dfsumRMSE$Stat=="RMSE"), ]
+lp6 = ggplot(data=newdata_6, aes(x=Sample_Sizes, y=Value, colour=Algorithm_type, group = interaction(Algorithm_type, X_Specification)) ) + 
+  geom_blank() + geom_line(aes(linetype=X_Specification), size=1) + facet_grid(Stat ~ PorNP, scales = "free_y", switch = "y") +
+  ylim(0, max(dfsumRMSE$Value)) + xlab("Sample size") + labs(colour = "Algorithm type:", linetype = "X specification:") +
+  ylab(NULL) + geom_point(size = 2)
+lp6 = lp6 + theme_minimal() + theme(legend.position="bottom")
+lp6
 dev.off()
-
-
-
-
-# other option for plotting bias and RMSE
-
-# pdf(file="2017-11-21-lineplots_col_6.pdf", width=thewidth, height=theheight)
-# newdata_6 = dfsumRMSE[ which(dfsumRMSE$PorNP=="Nonparametric"), ]
-# lp6 = ggplot(data=newdata_6, aes(x=Sample_Sizes, y=Value, colour=Algorithm_type, group = interaction(Algorithm_type, X_Specification)) ) + 
-#   geom_blank() + geom_line(aes(linetype=X_Specification), size=1) + facet_grid(Stat ~ PorNP, scales = "free_y", switch = "y") +
-#   ylim(0, max(dfsumRMSE$Value)) + labs(title = "Nonparametric setting, 500 simulations") + 
-#   xlab("Sample size") + labs(colour = "Algorithm type:", linetype = "X specification:") +
-#   ylab(NULL) + geom_point(size = 2) + theme(strip.background = element_blank(), strip.text.x = element_blank())
-# lp6 + theme_minimal() + scale_colour_gdocs() + theme(legend.position="none", strip.text = element_blank())
-# dev.off()
-
-
 
 
 
@@ -668,4 +636,4 @@ print(xtable(publish.df.cov, caption="Coverage from simulation with 500 repetiti
 
 # TO DO:
 # WHY ARE SOME OF THE PLUGINS PC'S STILL NEGATIVE? RIGHT NOW I'M USING ABS() IN THE FUNCTION.
-
+# COVERAGE GETS SMALLER WITH SAMPLE SIZE. WHY IS THIS HAPPENING?
